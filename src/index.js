@@ -102,19 +102,60 @@ async function compareCollections(collectionFile, recommendationFile) {
         const recommendations = await readDeckRecommendations(recommendationFile);
         
         const missingCards = [];
-        
+
+        // Iterate through the recommendations and check for missing cards
         Object.entries(recommendations).forEach(([key, { quantity, name }]) => {
             const owned = collection[key]?.count || 0;
             if (owned < quantity) {
-                missingCards.push({ key, name, needed: quantity, owned, missing: quantity - owned });
+                // Find suggestions for other cards with the same name but different sets or numbers
+                const suggestedCards = [];
+
+                // Check if other sets or numbers contain cards with the same name and with a count greater than 0
+                Object.entries(collection).forEach(([key, card]) => {
+                    if (card.name === name && key !== `${recommendations[key]?.set}-${recommendations[key]?.number}`) {
+                        if (card.count > 0) { // Only suggest if the card count is greater than 0
+                            suggestedCards.push({
+                                set: key.split('-')[0],  // Get the set from the key
+                                number: key.split('-')[1], // Get the number from the key
+                                name: card.name
+                            });
+                        }
+                    }
+                });
+
+                missingCards.push({
+                    key,
+                    name,
+                    needed: quantity,
+                    owned,
+                    missing: quantity - owned,
+                    suggested: suggestedCards.length ? suggestedCards : 'No suggestions available'
+                });
             }
         });
-        
-        console.log('Missing Cards:', missingCards);
+
+        console.log(JSON.stringify(missingCards))
+
+        // Print results with more readable suggested cards
+        missingCards.forEach(card => {
+            console.log(`Missing Card: ${card.name} (${card.key})`);
+            console.log(`Needed: ${card.needed}, Owned: ${card.owned}, Missing: ${card.missing}`);
+            if (Array.isArray(card.suggested)) {
+                console.log('Suggested Cards:');
+                card.suggested.forEach(suggestion => {
+                    console.log(`  - ${suggestion.name} (Set: ${suggestion.set}, Number: ${suggestion.number})`);
+                });
+            } else {
+                console.log(card.suggested); // If no suggestions
+            }
+            console.log('---');
+        });
     } catch (error) {
         console.error('Error:', error);
     }
 }
+
+
 
 // Main function to run the process
 async function run() {
