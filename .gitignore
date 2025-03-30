@@ -1,0 +1,27 @@
+# Node.js modules
+node_modules/
+
+# Logs
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Environment files
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Output directories
+dist/
+build/
+coverage/
+
+# Recommendations directory (if you don't want to track the .txt files in Git)
+recommendations/
+data/
+
+# Optional: Ignore any other temporary or build files
+.idea/
+.vscode/
