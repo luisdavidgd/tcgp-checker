@@ -17,7 +17,7 @@ async function compareCollections(collectionFile, recommendationFile) {
 
                 // Add suggested cards if available in other sets
                 Object.entries(collection).forEach(([k, card]) => {
-                    if (card.name === name && owned === 0) {
+                    if (card.name === name && card.count > 0 && k != key) {
                         suggested.push({ key: k, set: k.split('-')[0], number: k.split('-')[1], name: card.name });
                     }
                 });
