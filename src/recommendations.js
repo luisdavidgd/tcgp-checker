@@ -1,5 +1,5 @@
 const fs = require('fs');
-const inquirer = require('inquirer'); // Asegúrate de importar inquirer aquí
+const inquirer = require('inquirer');
 const path = require('path');
 
 // Read the deck recommendation file

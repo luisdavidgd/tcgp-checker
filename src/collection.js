@@ -1,6 +1,6 @@
 const fs = require('fs');
 const csv = require('csv-parser');
-const inquirer = require('inquirer'); // Asegúrate de importar inquirer aquí
+const inquirer = require('inquirer');
 const path = require('path');
 
 // Read CSV file (collection) from data folder
