@@ -1,6 +1,6 @@
 # Pokemon Deck Checker
 
-This project helps you compare your Pokémon TCG card collection against a set of deck recommendations. It reads data from CSV files containing your collection and TXT files for recommended cards.
+This project helps you compare your Pokémon TCG card collection against a set of deck. It reads data from CSV files containing your collection and TXT files for the deck cards.
 
 ## How It Works
 
@@ -10,14 +10,14 @@ This project helps you compare your Pokémon TCG card collection against a set o
    - Only `Set`, `Number`, and `Normal` (card quantity) are used.
    - Use this links as a reference: https://ptcgpocket.gg/collection/
 
-2. **Reads a list of recommended cards** from a text file (`recommendations.txt`).
+2. **Reads a list of recommended cards** from a text file (`deck.txt`).
 
    - Cards must be formatted as: `Quantity Name Set Number`.
    - Only `Quantity`, `Set`, and `Number` are used.
 
 3. **Compares both lists** to determine which cards are missing.
 
-   - If you have fewer cards than needed in the recommended deck, they will be listed as "missing".
+   - If you have fewer cards than needed in the desired deck, they will be listed as "missing".
 
 ## Installation and Usage
 
@@ -37,11 +37,16 @@ npm install
 ### 3. Expected File Structure
 
 ```
-pokemon-deck-checker/
-│── src/
+tcgp-checker/
+│── data/
 │   │── collection.csv      # Your card collection
-│   │── recommendations.txt # Recommended deck list
+│── decks/
+│   │── deck1.txt           # Recommended deck list
+│── src/
+│   │── collection.js
+│   │── compare.js
 │   │── index.js            # Main script
+│   │── deck.js
 │── package.json            # npm configuration
 │── package-lock.json       # Version lock file
 │── .gitignore              # Files to ignore
@@ -49,12 +54,12 @@ pokemon-deck-checker/
 
 ### 4. ## How to Run
 
-1. Place your **collection CSV files** in the `data/` folder and your **recommendation `.txt` files** in the `recommendations/` folder.
+1. Place your **collection CSV files** in the `data/` folder and your **decks `.txt` files** in the `decks/` folder.
 2. Run the main script:
 ```sh
 node src/index.js
 ```
-3. The script will prompt you to select the CSV file for your collection and a .txt recommendation file. It will then compare your collection with the recommendations and display the missing cards.
+3. The script will prompt you to select the CSV file for your collection and a .txt deck file. It will then compare your collection with the selected deck and display the missing cards.
 
 ## File Format
 
@@ -78,8 +83,8 @@ The collection file should be in CSV format with the following columns:
 | 2      | 0    | Metapod    | A1  | 6      |
 | ...    | ...  | ...        | ... | ...    |
 
-#### Recommendation Text File
-The recommendation file is a .txt file containing the following format:
+#### Deck Text File
+The deck file is a .txt file containing the following format:
 
 - The first value is the quantity of cards needed for the deck.
 - The second value is the name of the Pokémon (ignored in the comparison).

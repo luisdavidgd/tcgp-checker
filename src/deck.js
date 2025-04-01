@@ -2,15 +2,15 @@ const fs = require('fs');
 const inquirer = require('inquirer');
 const path = require('path');
 
-// Read the deck recommendation file
-function readDeckRecommendations(filePath) {
+// Read the deck file
+function readDeck(filePath) {
     return new Promise((resolve, reject) => {
         fs.readFile(filePath, 'utf8', (err, data) => {
             if (err) return reject(err);
-            
+
             const lines = data.split('\n').filter(line => line.trim() && !line.startsWith('Supporter') && !line.startsWith('Item'));
-            const recommendations = {};
-            
+            const deck = {};
+
             lines.forEach(line => {
                 const parts = line.split(' ');
                 const quantity = parseInt(parts[0], 10);
@@ -18,19 +18,19 @@ function readDeckRecommendations(filePath) {
                 const set = parts[parts.length - 2];
                 const number = parts[parts.length - 1];
                 const key = `${set}-${number}`;
-                recommendations[key] = { quantity, name };
+                deck[key] = { quantity, name };
             });
-            
-            resolve(recommendations);
+
+            resolve(deck);
         });
     });
 }
 
-// Ask user which .txt file to read from the recommendations folder
-function selectRecommendationFile() {
-    const recommendationsDir = path.join(__dirname, '../recommendations'); // Cambié de 'src/recommendations' a '../recommendations'
+// Ask user which .txt file to read from the decks folder
+function selectDeckFile() {
+    const decksDir = path.join(__dirname, '../decks');
     return new Promise((resolve, reject) => {
-        fs.readdir(recommendationsDir, (err, files) => {
+        fs.readdir(decksDir, (err, files) => {
             if (err) return reject(err);
 
             // Filter .txt files
@@ -41,14 +41,14 @@ function selectRecommendationFile() {
                 {
                     type: 'list',
                     name: 'fileName',
-                    message: 'Select a recommendations .txt file:',
+                    message: 'Select a deck .txt file:',
                     choices: txtFiles
                 }
             ]).then(answers => {
-                resolve(path.join(recommendationsDir, answers.fileName)); // Resolve full path
+                resolve(path.join(decksDir, answers.fileName)); // Resolve full path
             }).catch(reject);
         });
     });
 }
 
-module.exports = { readDeckRecommendations, selectRecommendationFile };
+module.exports = { readDeck, selectDeckFile };
