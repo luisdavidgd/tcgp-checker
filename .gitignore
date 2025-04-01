@@ -18,9 +18,9 @@ dist/
 build/
 coverage/
 
-# Recommendations directory (if you don't want to track the .txt files in Git)
-recommendations/
+# We don't want to track the .txt files in Git
 data/
+decks/
 
 # Optional: Ignore any other temporary or build files
 .idea/

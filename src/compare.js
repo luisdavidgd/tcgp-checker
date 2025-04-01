@@ -1,16 +1,16 @@
 const { readCollectionCSV } = require('./collection');
-const { readDeckRecommendations } = require('./recommendations');
+const { readDeck } = require('./deck');
 
-// Compare collections and recommendations
-async function compareCollections(collectionFile, recommendationFile) {
+// Compare collections and deck
+async function compareCollections(collectionFile, deckFile) {
     try {
         const collection = await readCollectionCSV(collectionFile);
-        const recommendations = await readDeckRecommendations(recommendationFile);
+        const deck = await readDeck(deckFile);
 
         const missingCards = [];
 
-        // Iterate through recommendations and find missing cards
-        Object.entries(recommendations).forEach(([key, { quantity, name }]) => {
+        // Iterate through deck and find missing cards
+        Object.entries(deck).forEach(([key, { quantity, name }]) => {
             const owned = collection[key]?.count || 0;
             if (owned < quantity) {
                 const suggested = [];
