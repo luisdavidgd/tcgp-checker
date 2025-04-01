@@ -26,29 +26,61 @@ function readDeck(filePath) {
     });
 }
 
-// Ask user which .txt file to read from the decks folder
-function selectDeckFile() {
+// Get a list of subdirectories in the decks folder
+function getSubdirectories(dir) {
+    return fs.readdirSync(dir)
+        .filter(file => fs.statSync(path.join(dir, file)).isDirectory())
+        .map(folder => ({ name: `📂 ${folder}`, value: folder }));
+}
+
+// Get a list of .txt files in a given directory
+function getTxtFiles(dir) {
+    return fs.readdirSync(dir)
+        .filter(file => file.toLowerCase().endsWith('.txt'))
+        .map(file => ({ name: `📄 ${file}`, value: file }));
+}
+
+// Ask user to select a deck file from a chosen subdirectory (or main folder)
+async function selectDeckFile() {
     const decksDir = path.join(__dirname, '../decks');
-    return new Promise((resolve, reject) => {
-        fs.readdir(decksDir, (err, files) => {
-            if (err) return reject(err);
+    let selectedDir = decksDir;
 
-            // Filter .txt files
-            const txtFiles = files.filter(file => file.endsWith('.txt'));
+    while (true) {
+        const subdirs = getSubdirectories(selectedDir);
+        const txtFiles = getTxtFiles(selectedDir);
 
-            // Ask user to select a file
-            inquirer.prompt([
-                {
-                    type: 'list',
-                    name: 'fileName',
-                    message: 'Select a deck .txt file:',
-                    choices: txtFiles
-                }
-            ]).then(answers => {
-                resolve(path.join(decksDir, answers.fileName)); // Resolve full path
-            }).catch(reject);
-        });
-    });
+        let choices = [];
+
+        // Si estamos dentro de una subcarpeta, agregar opción para regresar
+        if (selectedDir !== decksDir) {
+            choices.push({ name: '🔙 Go Back', value: '[Go Back]' });
+        } else {
+            choices.push({ name: '🏠 Main Folder', value: '[Main Folder]' });
+        }
+
+        // Agregar subdirectorios y archivos `.txt` como opciones
+        choices = choices.concat(subdirs, txtFiles);
+
+        const answer = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'selection',
+                message: 'Select a deck category or file:',
+                choices
+            }
+        ]);
+
+        // Manejar navegación
+        if (answer.selection === '[Go Back]') {
+            selectedDir = path.dirname(selectedDir); // Volver al directorio padre
+        } else if (answer.selection === '[Main Folder]') {
+            selectedDir = decksDir; // Volver al directorio principal
+        } else if (subdirs.some(item => item.value === answer.selection)) {
+            selectedDir = path.join(selectedDir, answer.selection); // Entrar a la subcarpeta
+        } else {
+            return path.join(selectedDir, answer.selection); // Es un archivo `.txt`, lo retornamos
+        }
+    }
 }
 
 module.exports = { readDeck, selectDeckFile };
