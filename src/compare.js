@@ -2,6 +2,14 @@ const path = require('path');
 const { readCollectionCSV } = require('./collection');
 const { readDeck } = require('./deck');
 
+// ANSI color codes for terminal output
+const colors = {
+    reset: "\x1b[0m",
+    yellow: "\x1b[33m",
+    red: "\x1b[31m",
+    green: "\x1b[32m"
+};
+
 // Function to check if a line has a valid format
 function isValidCardLine(line) {
     return /^\d+\s/.test(line); // Must start with a number followed by a space
@@ -15,22 +23,13 @@ async function compareCollections(collectionFile, deckFile) {
 
         const deckName = path.basename(deckFile, '.txt'); // Extract deck name
         const missingCards = [];
+        const deckList = [];
         let totalNeeded = 0;
         let totalOwned = 0;
 
         console.log(`Deck: ${deckName}`);
-        console.log('---------------------- Card List ----------------------');
 
-        // Iterate through the deck and print only valid card lines
-        Object.entries(deck).forEach(([key, { quantity, name }]) => {
-            if (isValidCardLine(`${quantity} ${name} ${key}`)) {
-                console.log(`${quantity} ${name} ${key.split('-')[0]} ${key.split('-')[1]}`);
-            }
-        });
-
-        console.log('------------------------------------------------------------');
-
-        // Find missing cards
+        // Find missing cards and prepare the deck list
         Object.entries(deck).forEach(([key, { quantity, name }]) => {
             const owned = collection[key]?.count || 0;
 
@@ -42,6 +41,16 @@ async function compareCollections(collectionFile, deckFile) {
 
             totalNeeded += needed;
             totalOwned += Math.min(ownedCount, needed);
+
+            // Determine line color based on availability
+            let color = colors.reset;
+            if (ownedCount === 0) {
+                color = colors.red; // Completely missing cards
+            } else if (ownedCount < needed) {
+                color = colors.yellow; // Partially owned cards
+            }
+
+            deckList.push(`${color}${quantity} ${name} ${key.split('-')[0]} ${key.split('-')[1]} (You own: ${ownedCount})${colors.reset}`);
 
             if (ownedCount < needed) {
                 const suggested = [];
@@ -71,9 +80,9 @@ async function compareCollections(collectionFile, deckFile) {
 
         console.log(`\nYou got ${totalOwned}/${totalNeeded} cards for this deck.`);
         if (totalNeeded === totalOwned) {
-            console.log('\x1b[32mDeck complete! You have all the cards! 🎉\x1b[0m');
+            console.log(colors.green + 'Deck complete! You have all the cards! 🎉' + colors.reset);
         } else {
-            console.log('\x1b[33mYou still need more cards to complete the deck.\x1b[0m');
+            console.log(colors.yellow + 'You still need more cards to complete the deck.' + colors.reset);
 
             // Display missing cards
             console.log('\n---------------------- Missing Cards ----------------------');
@@ -98,6 +107,12 @@ async function compareCollections(collectionFile, deckFile) {
                 console.log('  No alternative cards found.');
             }
         }
+
+        // Display deck list at the end with color-coded ownership
+        console.log('\n---------------------- Lista de Cartas ----------------------');
+        deckList.forEach(cardLine => console.log(cardLine));
+        console.log('------------------------------------------------------------');
+
     } catch (error) {
         console.error('Error:', error);
     }
